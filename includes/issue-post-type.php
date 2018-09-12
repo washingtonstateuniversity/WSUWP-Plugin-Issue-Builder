@@ -12,6 +12,7 @@ add_filter( 'make_will_be_builder_page', __NAMESPACE__ . '\\force_builder' );
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\admin_enqueue_scripts' );
 add_action( 'add_meta_boxes_' . slug(), __NAMESPACE__ . '\\add_post_stage_meta_box' );
 add_action( 'wp_ajax_set_issue_posts', __NAMESPACE__ . '\\ajax_callback' );
+add_action( 'save_post_issue', __NAMESPACE__ . '\\save_issue', 10, 2 );
 
 /**
  * Returns the issue post type slug.
@@ -427,6 +428,8 @@ function add_post_stage_meta_box() {
 function display_issue_posts_meta_box( $post ) {
 	wp_nonce_field( 'save-wsuwp-issue-build', '_wsuwp_issue_build_nonce' );
 
+	$selected_start = get_post_meta( $post->ID, '_wsuwp_issue_post_start_date', true );
+	$selected_end = get_post_meta( $post->ID, '_wsuwp_issue_post_end_date', true );
 	$post_ids = get_post_meta( $post->ID, '_wsuwp_issue_staged_posts', true );
 	$stage_posts = ( $post_ids ) ? implode( ',', $post_ids ) : '';
 
@@ -444,7 +447,7 @@ function display_issue_posts_meta_box( $post ) {
 
 	?>
 
-	<input type="hidden" id="issue-staged-posts" name="issue_staged_posts" value="<?php echo esc_attr( $stage_posts ); ?>" />
+	<input type="hidden" id="issue-staged-posts" name="_wsuwp_issue_staged_posts" value="<?php echo esc_attr( $stage_posts ); ?>" />
 
 	<div class="issue-posts-loading-actions">
 
@@ -452,16 +455,16 @@ function display_issue_posts_meta_box( $post ) {
 
 			<label for="post-start-date" class="label-responsive">Load posts from:</label>
 
-			<select name="post_start_date" id="post-start-date">
+			<select name="_wsuwp_issue_post_start_date" id="post-start-date">
 				<option value="">&mdash; Select &mdash;</option>
-				<?php post_date_options(); ?>
+				<?php post_date_options( $selected_start ); ?>
 			</select><br />
 
 			<label for="post-end-date" class="label-responsive">through:</label>
 
-			<select name="post_end_date" id="post-end-date">
+			<select name="_wsuwp_issue_post_end_date" id="post-end-date">
 				<option value="">&mdash; Select &mdash;</option>
-				<?php post_date_options(); ?>
+				<?php post_date_options( $selected_end ); ?>
 			</select>
 
 		</fieldset>
@@ -480,9 +483,9 @@ function display_issue_posts_meta_box( $post ) {
  *
  * @since 0.0.1
  *
- * @param string|bool $selected The issue's meta data for start or end date.
+ * @param string $selected The issue's meta data for start or end date.
  */
-function post_date_options( $selected = false ) {
+function post_date_options( $selected = '' ) {
 	global $wpdb, $wp_locale;
 
 	$query = $wpdb->prepare( "SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month FROM $wpdb->posts WHERE post_type = %s AND post_status = 'publish' ORDER BY post_date DESC", 'post' );
@@ -604,4 +607,49 @@ function ajax_callback() {
 	echo wp_json_encode( build_issue_response( $post_ids, $start_date, $end_date ) );
 
 	exit();
+}
+
+/**
+ * Capture the meta values for an issue.
+ *
+ * @param int     $post_id ID of the current post being saved.
+ * @param WP_Post $post    Object of the current post being saved.
+ */
+function save_issue( $post_id, $post ) {
+	if ( ! isset( $_POST['_wsuwp_issue_build_nonce'] ) || ! wp_verify_nonce( $_POST['_wsuwp_issue_build_nonce'], 'save-wsuwp-issue-build' ) ) {
+		return;
+	}
+
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return;
+	}
+
+	if ( 'auto-draft' === $post->post_status ) {
+		return;
+	}
+
+	if ( ! empty( $_POST['_wsuwp_issue_staged_posts'] ) ) {
+		$issue_staged_articles = explode( ',', $_POST['_wsuwp_issue_staged_posts'] );
+		$issue_staged_articles = array_map( 'absint', $issue_staged_articles );
+
+		update_post_meta( $post_id, '_wsuwp_issue_staged_posts', $issue_staged_articles );
+	} else {
+		delete_post_meta( $post_id, '_wsuwp_issue_staged_posts' );
+	}
+
+	if ( ! empty( $_POST['_wsuwp_issue_post_start_date'] ) ) {
+		update_post_meta( $post_id, '_wsuwp_issue_post_start_date', sanitize_text_field( $_POST['_wsuwp_issue_post_start_date'] ) );
+	} else {
+		delete_post_meta( $post_id, '_wsuwp_issue_post_start_date' );
+	}
+
+	if ( ! empty( $_POST['_wsuwp_issue_post_end_date'] ) ) {
+		update_post_meta( $post_id, '_wsuwp_issue_post_end_date', sanitize_text_field( $_POST['_wsuwp_issue_post_end_date'] ) );
+	} else {
+		delete_post_meta( $post_id, '_wsuwp_issue_post_end_date' );
+	}
 }
