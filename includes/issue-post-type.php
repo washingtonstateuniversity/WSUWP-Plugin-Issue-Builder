@@ -10,6 +10,8 @@ add_filter( 'get_post_metadata', __NAMESPACE__ . '\\force_page_builder_meta', 10
 add_filter( 'spine_builder_force_builder', __NAMESPACE__ . '\\force_builder' );
 add_filter( 'make_will_be_builder_page', __NAMESPACE__ . '\\force_builder' );
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\admin_enqueue_scripts' );
+add_action( 'add_meta_boxes_' . slug(), __NAMESPACE__ . '\\add_post_stage_meta_box' );
+add_action( 'wp_ajax_set_issue_posts', __NAMESPACE__ . '\\ajax_callback' );
 
 /**
  * Returns the issue post type slug.
@@ -136,100 +138,106 @@ function add_builder_sections( $current_screen ) {
 }
 
 /**
- * Output the input fields for configuring article displays.
+ * Output the input fields for configuring post displays.
  *
  * @param string $column_name
  * @param array $section_data
  * @param int $column
  */
-function article_configuration_output( $column_name, $section_data, $column = false ) {
-	if ( $column ) {
-		$headline = ( isset( $section_data['data']['columns'][ $column ]['headline'] ) ) ? $section_data['data']['columns'][ $column ]['headline'] : '';
-		$subtitle = ( isset( $section_data['data']['columns'][ $column ]['subtitle'] ) ) ? $section_data['data']['columns'][ $column ]['subtitle'] : '';
-		$bg_id = ( isset( $section_data['data']['columns'][ $column ]['background-id'] ) ) ? $section_data['data']['columns'][ $column ]['background-id'] : '';
-		$bg_image = ( ! empty( $bg_id ) ) ? wp_get_attachment_image_src( $bg_id, 'full' )[0] : '';
-		$bg_size = ( isset( $section_data['data']['columns'][ $column ]['background-size'] ) ) ? $section_data['data']['columns'][ $column ]['background-size'] : '';
-		$bg_position = ( isset( $section_data['data']['columns'][ $column ]['background-position'] ) ) ? $section_data['data']['columns'][ $column ]['background-position'] : '';
-	} else {
-		$headline = ( isset( $section_data['data']['headline'] ) ) ? $section_data['data']['headline'] : '';
-		$subtitle = ( isset( $section_data['data']['subtitle'] ) ) ? $section_data['data']['subtitle'] : '';
-		$background = ( isset( $section_data['data']['background-id'] ) ) ? $section_data['data']['background-id'] : '';
-		$bg_size = ( isset( $section_data['data']['background-size'] ) ) ? $section_data['data']['background-size'] : '';
-		$bg_position = ( isset( $section_data['data']['background-position'] ) ) ? $section_data['data']['background-position'] : '';
-	}
+function post_configuration_output( $column_name, $section_data, $column = false ) {
+	$column_classes = ( ! empty( $section_data['data']['columns'][ $column ]['classes'] ) ) ? $section_data['data']['columns'][ $column ]['classes'] : '';
+	$header = ( ! empty( $section_data['data']['columns'][ $column ]['header'] ) ) ? $section_data['data']['columns'][ $column ]['header'] : '';
+	$subheader = ( ! empty( $section_data['data']['columns'][ $column ]['subheader'] ) ) ? $section_data['data']['columns'][ $column ]['subheader'] : '';
+	$display_image = ( ! empty( $section_data['data']['columns'][ $column ]['display_image'] ) ) ? $section_data['data']['columns'][ $column ]['display_image'] : '';
+	$display_excerpt = ( ! empty( $section_data['data']['columns'][ $column ]['display_excerpt'] ) ) ? $section_data['data']['columns'][ $column ]['display_excerpt'] : '';
+	$bg_image = ( ! empty( $section_data['data']['columns'][ $column ]['background-image'] ) ) ? $section_data['data']['columns'][ $column ]['background-image'] : '';
+	$bg_position = ( ! empty( $section_data['data']['columns'][ $column ]['background-position'] ) ) ? $section_data['data']['columns'][ $column ]['background-position'] : '';
 	?>
+
 	<div class="wsuwp-builder-meta">
-		<label for="<?php echo esc_attr( $column_name ); ?>[headline]">Headline</label>
+		<label for="<?php echo esc_attr( $column_name ); ?>[classes]">Column Classes</label>
 		<input type="text"
-			   id="<?php echo esc_attr( $column_name ); ?>[headline]"
-			   name="<?php echo esc_attr( $column_name ); ?>[headline]"
-			   class="spine-builder-column-headline wsm-article-meta widefat"
-			   value="<?php echo esc_attr( $headline ); ?>"/>
-		<p class="description">Enter text to display in place of the original article headline or title.</p>
+			   id="<?php echo esc_attr( $column_name ); ?>[classes]"
+			   name="<?php echo esc_attr( $column_name ); ?>[classes]"
+			   class="spine-builder-column-classes widefat"
+			   value="<?php echo esc_attr( $column_classes ); ?>"/>
+		<p class="description">Enter space delimited class names here to apply them to the <code>article</code> element representing this post.</p>
 	</div>
+
 	<div class="wsuwp-builder-meta">
-		<label for="<?php echo esc_attr( $column_name ); ?>[subtitle]">Subtitle</label>
+		<label for="<?php echo esc_attr( $column_name ); ?>[header]">Header</label>
 		<input type="text"
-			   id="<?php echo esc_attr( $column_name ); ?>[subtitle]"
-			   name="<?php echo esc_attr( $column_name ); ?>[subtitle]"
-			   class="spine-builder-column-subtitle wsm-article-meta widefat"
-			   value="<?php echo esc_attr( $subtitle ); ?>"/>
-		<p class="description">Enter text to display as the article subtitle.</p>
+			   id="<?php echo esc_attr( $column_name ); ?>[header]"
+			   name="<?php echo esc_attr( $column_name ); ?>[header]"
+			   class="spine-builder-column-header wsuwp-issue-post-meta widefat"
+			   value="<?php echo esc_attr( $header ); ?>"/>
+		<p class="description">Enter text to display in place of the original post title.</p>
 	</div>
+
+	<div class="wsuwp-builder-meta">
+		<label for="<?php echo esc_attr( $column_name ); ?>[subheader]">Subheader</label>
+		<input type="text"
+			   id="<?php echo esc_attr( $column_name ); ?>[subheader]"
+			   name="<?php echo esc_attr( $column_name ); ?>[subheader]"
+			   class="spine-builder-column-subheader wsuwp-issue-post-meta widefat"
+			   value="<?php echo esc_attr( $subheader ); ?>"/>
+		<p class="description">Enter text to display as the post subheader.</p>
+	</div>
+
+	<div class="wsuwp-builder-meta">
+		<label for="<?php echo esc_attr( $column_name ); ?>[display_image]">Post Image</label><br />
+		<select id="<?php echo esc_attr( $column_name ); ?>[display_image]"
+				name="<?php echo esc_attr( $column_name ); ?>[display_image]"
+				class="spine-builder-column-display-image wsuwp-issue-post-meta">
+			<option value="">Select</option>
+			<option value="featured-image" <?php selected( $display_image, 'featured-image' ); ?>>Featured image</option>
+			<option value="thumbnail-image" <?php selected( $display_image, 'thumbnail-image' ); ?>>Thumbnail image</option>
+		</select>
+		<p class="description">Display an image assigned to this post as an <code>&lt;img&gt;</code> element within the <code>article</code>.</p>
+	</div>
+
+	<div class="wsuwp-builder-meta">
+		<label for="<?php echo esc_attr( $column_name ); ?>[display_excerpt]">Display Post Excerpt</label><br />
+		<input type="checkbox"
+			   id="<?php echo esc_attr( $column_name ); ?>[display_excerpt]"
+			   name="<?php echo esc_attr( $column_name ); ?>[display_excerpt]"
+			   value="yes"
+			   class="spine-builder-column-display-excerpt wsuwp-issue-post-meta" />
+		</select>
+		<p class="description">Display this post's manual excerpt.</p>
+	</div>
+
 	<div class="wsuwp-builder-meta">
 		<label>Background Image</label>
 		<p class="hide-if-no-js">
 			<input type="hidden"
-				   id="<?php echo esc_attr( $column_name ); ?>[background-id]"
-				   name="<?php echo esc_attr( $column_name ); ?>[background-id]"
-				   class="spine-builder-column-background-id wsm-article-meta"
-				   value="<?php echo esc_attr( $bg_id ); ?>" />
+				   id="<?php echo esc_attr( $column_name ); ?>[background-image]"
+				   name="<?php echo esc_attr( $column_name ); ?>[background-image]"
+				   class="spine-builder-column-background-image wsuwp-issue-post-meta"
+				   value="<?php echo esc_attr( $bg_image ); ?>" />
 			<a href="#" class="spine-builder-column-set-background-image"><?php
 				echo ( $bg_image ) ? '<img src="' . esc_url( $bg_image ) . '" />' : 'Set background image';
 			?></a>
 			<a href="#" class="spine-builder-column-remove-background-image"<?php if ( ! $bg_image ) { echo 'style="display:none;"'; } ?>>Remove background image</a>
 		</p>
-		<p class="description">Select an image to apply as the article background.</p>
+		<p class="description">Select an image to apply as the post background.</p>
 	</div>
-	<div class="wsuwp-builder-meta">
-		<label for="<?php echo esc_attr( $column_name ); ?>[background-size]">Background Size</label>
-		<select id="<?php echo esc_attr( $column_name ); ?>[background-size]"
-				name="<?php echo esc_attr( $column_name ); ?>[background-size]"
-				class="spine-builder-column-background-size wsm-article-meta">
-			<option value="">Full</option>
-			<?php
-			$sizes = array(
-				'thumbnail',
-				'medium',
-				'large',
-				'spine-large_size',
-			);
-			foreach ( $sizes as $size ) {
-				$image = wp_get_attachment_image_src( $bg_id, $size );
-				if ( ! empty( $image ) ) {
-					$name = ucfirst( $size ) . ' (' . $image[1] . 'x' . $image[2] . ')';
-					?><option value="<?php echo esc_attr( $size ); ?>" <?php selected( esc_attr( $bg_size ), $size ); ?>><?php echo esc_attr( $name ); ?></option><?php
-				}
-			}
-			?>
-		</select>
-		<p class="description">Set the size of the background image.</p>
-	</div>
+
 	<div class="wsuwp-builder-meta">
 		<label for="<?php echo esc_attr( $column_name ); ?>[background-position]">Background Position</label>
 		<select id="<?php echo esc_attr( $column_name ); ?>[background-position]"
 				name="<?php echo esc_attr( $column_name ); ?>[background-position]"
-				class="spine-builder-column-background-position wsm-article-meta">
+				class="spine-builder-column-background-position wsuwp-issue-post-meta">
 			<option value="">Select</option>
-			<option value="center" <?php selected( $bg_position, 'center' ); ?>>Center</option>
-			<option value="center-top" <?php selected( $bg_position, 'center-top' ); ?>>Center-Top</option>
-			<option value="right-top" <?php selected( $bg_position, 'right-top' ); ?>>Right-Top</option>
-			<option value="right-center" <?php selected( $bg_position, 'right-center' ); ?>>Right-Center</option>
-			<option value="right-bottom" <?php selected( $bg_position, 'right-bottom' ); ?>>Right-Bottom</option>
-			<option value="center-bottom" <?php selected( $bg_position, 'center-bottom' ); ?>>Center-Bottom</option>
-			<option value="left-bottom" <?php selected( $bg_position, 'left-bottom' ); ?>>Left-Bottom</option>
-			<option value="left-center" <?php selected( $bg_position, 'left-center' ); ?>>Left-Center</option>
-			<option value="left-top" <?php selected( $bg_position, 'left-top' ); ?>>Left-Top</option>
+			<option value="left-top" <?php selected( $bg_position, 'left-top' ); ?>>Left top</option>
+			<option value="left-center" <?php selected( $bg_position, 'left-center' ); ?>>Left center</option>
+			<option value="left-bottom" <?php selected( $bg_position, 'left-bottom' ); ?>>Left bottom</option>
+			<option value="center-top" <?php selected( $bg_position, 'center-top' ); ?>>Center top</option>
+			<option value="center" <?php selected( $bg_position, 'center' ); ?>>Center center</option>
+			<option value="center-bottom" <?php selected( $bg_position, 'center-bottom' ); ?>>Center bottom</option>
+			<option value="right-top" <?php selected( $bg_position, 'right-top' ); ?>>Right top</option>
+			<option value="right-center" <?php selected( $bg_position, 'right-center' ); ?>>Right center</option>
+			<option value="right-bottom" <?php selected( $bg_position, 'right-bottom' ); ?>>Right bottom</option>
 		</select>
 		<p class="description">Change the positioning of the background image.</p>
 	</div>
@@ -257,13 +265,6 @@ function save_columns( $data ) {
 	}
 
 	if ( isset( $data['columns'] ) && is_array( $data['columns'] ) ) {
-		$background_sizes = array(
-			'thumbnail',
-			'medium',
-			'large',
-			'spine-large_size',
-		);
-
 		$background_positions = array(
 			'center',
 			'center-top',
@@ -287,20 +288,20 @@ function save_columns( $data ) {
 				$clean_data['columns'][ $id ]['post-id'] = sanitize_text_field( $item['post-id'] );
 			}
 
-			if ( isset( $item['headline'] ) ) {
-				$clean_data['columns'][ $id ]['headline'] = sanitize_text_field( $item['headline'] );
+			if ( isset( $item['classes'] ) ) {
+				$clean_data['columns'][ $id ]['classes'] = clean_classes( $item['classes'] );
 			}
 
-			if ( isset( $item['subtitle'] ) ) {
-				$clean_data['columns'][ $id ]['subtitle'] = sanitize_text_field( $item['subtitle'] );
+			if ( isset( $item['header'] ) ) {
+				$clean_data['columns'][ $id ]['header'] = sanitize_text_field( $item['header'] );
 			}
 
-			if ( isset( $item['background-id'] ) ) {
-				$clean_data['columns'][ $id ]['background-id'] = sanitize_text_field( $item['background-id'] );
+			if ( isset( $item['subheader'] ) ) {
+				$clean_data['columns'][ $id ]['subheader'] = sanitize_text_field( $item['subheader'] );
 			}
 
-			if ( isset( $item['background-size'] ) && in_array( $item['background-size'], $background_sizes, true ) ) {
-				$clean_data['columns'][ $id ]['background-size'] = $item['background-size'];
+			if ( isset( $item['background-image'] ) ) {
+				$clean_data['columns'][ $id ]['background-image'] = sanitize_text_field( $item['background-image'] );
 			}
 
 			if ( isset( $item['background-position'] ) && in_array( $item['background-position'], $background_positions, true ) ) {
@@ -310,10 +311,7 @@ function save_columns( $data ) {
 	}
 
 	if ( isset( $data['section-classes'] ) ) {
-		$classes = explode( ' ', trim( $data['section-classes'] ) );
-		$classes = array_map( 'sanitize_key', $classes );
-		$classes = implode( ' ', $classes );
-		$clean_data['section-classes'] = $classes;
+		$clean_data['section-classes'] = clean_classes( $data['section-classes'] );
 	}
 
 	if ( isset( $data['label'] ) ) {
@@ -323,6 +321,22 @@ function save_columns( $data ) {
 	$clean_data = apply_filters( 'spine_builder_save_columns', $clean_data, $data );
 
 	return $clean_data;
+}
+
+/**
+ * Clean a passed input value of arbitrary classes.
+ *
+ * @since 0.0.1
+ *
+ * @param string $classes A string of arbitrary classes from a text input.
+ *
+ * @return string Clean, space delimited classes for output.
+ */
+function clean_classes( $classes ) {
+	$classes = explode( ' ', trim( $classes ) );
+	$classes = array_map( 'sanitize_key', $classes );
+	$classes = implode( ' ', $classes );
+	return $classes;
 }
 
 /**
@@ -385,4 +399,209 @@ function admin_enqueue_scripts( $hook ) {
 	}
 
 	wp_enqueue_style( 'wsuwp-issue-admin', plugins_url( '/css/admin-edit-issue.css', dirname( __FILE__ ) ), array( 'ttfmake-builder' ), \WSUWP\Issue_Builder\version() );
+	wp_enqueue_script( 'wsuwp-issue-admin', plugins_url( '/js/admin-edit-issue.min.js', dirname( __FILE__ ) ), array( 'jquery-ui-draggable', 'jquery-ui-sortable' ), \WSUWP\Issue_Builder\version(), true );
+}
+
+/**
+ * Adds the post staging meta box used by the issue content type.
+ *
+ * @since 0.0.1
+ */
+function add_post_stage_meta_box() {
+	add_meta_box(
+		'wsuwp-issue-posts',
+		'Issue Posts',
+		__NAMESPACE__ . '\\display_issue_posts_meta_box',
+		slug(),
+		'side'
+	);
+}
+
+/**
+ * Displays a staging area for loading/sorting issue posts.
+ *
+ * @since 0.0.1
+ *
+ * @param WP_Post $post Object for the post currently being edited.
+ */
+function display_issue_posts_meta_box( $post ) {
+	wp_nonce_field( 'save-wsuwp-issue-build', '_wsuwp_issue_build_nonce' );
+
+	$post_ids = get_post_meta( $post->ID, '_wsuwp_issue_staged_posts', true );
+	$stage_posts = ( $post_ids ) ? implode( ',', $post_ids ) : '';
+
+	$localized_data = array(
+		'post_id' => $post->ID,
+		'nonce' => wp_create_nonce( 'wsuwp-issue' ),
+	);
+
+	// Make any posts already assigned to this issue available to the JS.
+	if ( $post_ids ) {
+		$localized_data['items'] = build_issue_response( $post_ids );
+	}
+
+	wp_localize_script( 'wsuwp-issue-admin', 'wsuwp_issue', $localized_data );
+
+	?>
+
+	<input type="hidden" id="issue-staged-posts" name="issue_staged_posts" value="<?php echo esc_attr( $stage_posts ); ?>" />
+
+	<div class="issue-posts-loading-actions">
+
+		<fieldset>
+
+			<label for="post-start-date" class="label-responsive">Load posts from:</label>
+
+			<select name="post_start_date" id="post-start-date">
+				<option value="">&mdash; Select &mdash;</option>
+				<?php post_date_options(); ?>
+			</select><br />
+
+			<label for="post-end-date" class="label-responsive">through:</label>
+
+			<select name="post_end_date" id="post-end-date">
+				<option value="">&mdash; Select &mdash;</option>
+				<?php post_date_options(); ?>
+			</select>
+
+		</fieldset>
+
+		<input type="button" value="Load Posts" id="load-issue-posts" class="button button-large button-secondary" />
+
+	</div>
+
+	<div id="wsuwp-issue-posts-stage" class="wsuwp-spine-builder-column"></div>
+
+	<?php
+}
+
+/**
+ * Creates the date options fields for querying posts.
+ *
+ * @since 0.0.1
+ *
+ * @param string|bool $selected The issue's meta data for start or end date.
+ */
+function post_date_options( $selected = false ) {
+	global $wpdb, $wp_locale;
+
+	$query = $wpdb->prepare( "SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month FROM $wpdb->posts WHERE post_type = %s AND post_status = 'publish' ORDER BY post_date DESC", 'post' );
+	$last_changed = wp_cache_get_last_changed( 'posts' );
+	$key = md5( $query );
+	$key = "wsuwp_issue_builder_get_months:$key:$last_changed";
+	$results = wp_cache_get( $key, 'posts' );
+
+	if ( ! $results ) {
+		$results = $wpdb->get_results( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		wp_cache_set( $key, $results, 'posts' );
+	}
+
+	if ( $results ) {
+		$month_count = count( $results );
+
+		if ( ! $month_count || ( 1 === $month_count && 0 === $results[0]->month ) ) {
+			return;
+		}
+
+		foreach ( (array) $results as $date ) {
+			if ( 0 === $date->year ) {
+				continue;
+			}
+
+			$month = zeroise( $date->month, 2 );
+			$value = $date->year . '-' . $month;
+			$text = $wp_locale->get_month( $month ) . ' ' . $date->year;
+
+			?><option value="<?php echo esc_attr( $value ); ?>"<?php selected( $selected, $value ); ?>><?php echo esc_html( $text ); ?></option><?php
+		}
+	}
+}
+
+/**
+ * Builds the list of posts that should be included in an issue.
+ *
+ * @since 0.0.1
+ *
+ * @param array  $post_ids   List of specific post IDs to include.
+ * @param string $start_date The start date to limit the query to.
+ * @param string $end_date   The end date to limit the query to.
+ *
+ * @return array Containing information on each issue post.
+ */
+function build_issue_response( $post_ids = array(), $start_date = false, $end_date = false ) {
+	$query_args = array(
+		'posts_per_page' => 100,
+	);
+
+	// If an array of post IDs has been passed, use only those.
+	if ( ! empty( $post_ids ) ) {
+		$query_args['post__in'] = $post_ids;
+		$query_args['orderby']  = 'post__in';
+	}
+
+	// If no post IDs have been passed and a date range was provided, use it.
+	if ( empty( $post_ids ) && $start_date && $end_date ) {
+		$query_args['date_query'] = array(
+			array(
+				'after' => array(
+					'year' => date_i18n( 'Y', strtotime( $start_date ) ),
+					'month' => date_i18n( 'n', strtotime( $start_date ) ),
+				),
+				'before' => array(
+					'year' => date_i18n( 'Y', strtotime( $end_date ) ),
+					'month' => date_i18n( 'n', strtotime( $end_date ) ),
+				),
+				'inclusive' => true,
+			),
+		);
+	}
+
+	$items = array();
+
+	$issue_query = get_posts( $query_args );
+
+	foreach ( $issue_query as $post ) {
+		setup_postdata( $post );
+
+		$thumbnail = false;
+
+		if ( class_exists( 'MultiPostThumbnails' ) ) {
+			$thumbnail = esc_url( \MultiPostThumbnails::get_post_thumbnail_url( 'post', 'thumbnail-image', $post->ID, 'spine-large_size' ) );
+		}
+
+		$items[] = array(
+			'id' => $post->ID,
+			'title' => $post->post_title,
+			'featured_image' => esc_url( get_the_post_thumbnail_url( $post->ID, 'spine-large_size' ) ),
+			'thumbnail_image' => $thumbnail,
+			'excerpt' => wp_kses_post( wpautop( $post->post_excerpt ) ),
+		);
+	}
+
+	wp_reset_postdata();
+
+	return $items;
+}
+
+/**
+ * The AJAX callback for pulling a list of posts intto an issue.
+ *
+ * $since 0.0.1
+ */
+function ajax_callback() {
+
+	check_ajax_referer( 'wsuwp-issue', 'nonce' );
+
+	if ( ! DOING_AJAX || ! isset( $_POST['action'] ) || 'set_issue_posts' !== $_POST['action'] ) {
+		die();
+	}
+
+	$post_ids = ( isset( $_POST['post_ids'] ) ) ? explode( ',', $_POST['post_ids'] ) : array();
+	$start_date = ( isset( $_POST['start_date'] ) ) ? date( 'Y-n', strtotime( $_POST['start_date'] ) ) : false;
+	$end_date = ( isset( $_POST['end_date'] ) ) ? date( 'Y-n', strtotime( $_POST['end_date'] ) ) : false;
+
+	echo wp_json_encode( build_issue_response( $post_ids, $start_date, $end_date ) );
+
+	exit();
 }

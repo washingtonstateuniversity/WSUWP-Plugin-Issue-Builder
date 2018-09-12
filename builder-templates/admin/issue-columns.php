@@ -21,7 +21,7 @@ $j = 1;
 	foreach ( $section_order as $key => $i ) :
 
 		$column_name = $section_name . '[columns][' . $i . ']';
-		$article_id = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['post-id'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['post-id'] : '';
+		$post_id = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['post-id'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['post-id'] : '';
 		$visible = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['toggle'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['toggle'] : 'visible';
 
 		if ( ! in_array( $visible, array( 'visible', 'invisible' ), true ) ) {
@@ -32,93 +32,85 @@ $j = 1;
 		$toggle_class = ( 'invisible' === $visible ) ? ' wsuwp-toggle-closed' : '';
 		?>
 		<div class="wsuwp-spine-builder-column wsuwp-spine-builder-column-position-<?php echo esc_attr( $j ); ?>" data-id="<?php echo esc_attr( $i ); ?>">
-			<input type="hidden" class="wsuwp-column-visible wsm-article-meta" name="<?php echo esc_attr( $column_name ); ?>[toggle]" value="<?php echo esc_attr( $visible ); ?>" aria-hidden="true" />
-			<input type="hidden" class="wsuwp-column-post-id wsm-article-meta" name="<?php echo esc_attr( $column_name ); ?>[post-id]" value="<?php echo esc_attr( $article_id ); ?>" aria-hidden="true" />
+			<input type="hidden" class="wsuwp-column-visible wsuwp-issue-post-meta" name="<?php echo esc_attr( $column_name ); ?>[toggle]" value="<?php echo esc_attr( $visible ); ?>" aria-hidden="true" />
+			<input type="hidden" class="wsuwp-column-post-id wsuwp-issue-post-meta" name="<?php echo esc_attr( $column_name ); ?>[post-id]" value="<?php echo esc_attr( $post_id ); ?>" aria-hidden="true" />
 			<div class="spine-builder-column-overlay">
 				<div class="spine-builder-column-overlay-wrapper">
 					<div class="spine-builder-overlay-header">
-						<div class="spine-builder-overlay-title">Configure Article</div>
+						<div class="spine-builder-overlay-title">Configure Post</div>
 						<div class="spine-builder-column-overlay-close">Done</div>
 					</div>
 					<div class="spine-builder-overlay-body">
-						<?php WSUWP\Issue_Builder\Issue_Post_Type\article_configuration_output( $column_name, $ttfmake_section_data, $j ); ?>
+						<?php WSUWP\Issue_Builder\Issue_Post_Type\post_configuration_output( $column_name, $ttfmake_section_data, $j ); ?>
 					</div>
 				</div>
 			</div>
 
 			<?php
-			if ( $article_id ) :
+			if ( $post_id ) :
+				$classes = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['classes'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['classes'] : '';
+				$header = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['header'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['header'] : get_the_title( $post_id );
+				$subheader = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['subheader'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['subheader'] : '';
+				$display_image = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['display-image'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['display-image'] : '';
+				$display_excerpt = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['display-excerpt'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['display-excerpt'] : '';
+				$bg_image = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['background-image'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['background-image'] : '';
+				$bg_position = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['background-position'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['background-position'] : '';
 
-				$header = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['header'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['header'] : '';
-				$subtitle = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['subtitle'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['subtitle'] : '';
-				$background_id = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['background-id'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['background-id'] : '';
-				$background_size = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['background-size'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['background-size'] : '';
-				$background_image = ( ! empty( $background_id ) ) ? wp_get_attachment_image_src( $background_id, $background_size )[0] : '';
-				$background_full = ( ! empty( $background_id ) ) ? wp_get_attachment_image_src( $background_id, 'full' )[0] : '';
-				$background_position = ( isset( $ttfmake_section_data['data']['columns'][ $i ]['background-position'] ) ) ? $ttfmake_section_data['data']['columns'][ $i ]['background-position'] : '';
-				$article_classes = '';
-				$article_styles = '';
+				// Set up post styles.
+				$post_styles = ( ! empty( $bg_image ) ) ? 'background-image: url(' . esc_url( $bg_image ) . ');' : '';
+				$post_styles .= ( ! empty( $bg_position ) ) ? ' background-position: ' . esc_attr( str_replace( '-', ' ', $bg_position ) ) . ';' : '';
 
-				if ( ! empty( $background_image ) ) {
-					$article_classes .= ' has-background-img';
-					$article_styles .= ' background-image: url(' . esc_url( $background_image ) . ');';
-				}
+				// Set up post classes.
+				$post_classes = 'wsuwp-issue-post-body wsuwp-column-content';
+				$post_classes .= ( ! empty( $classes ) ) ? ' ' . $classes : '';
+				$post_classes .= ( in_array( $display_image, array( 'featured-image', 'thumbnail-image' ), true ) ) ? ' display-' . $display_image : '';
+				$post_classes .= ( 'yes' === $display_excerpt ) ? ' display-excerpt' : '';
 
-				if ( ! empty( $background_position ) ) {
-					$article_styles .= ' background-position: ' . esc_attr( str_replace( '-', ' ', $background_position ) ) . ';';
-				}
-
-				$background_sizes = '';
-
-				if ( ! empty( $background_id ) ) {
-
-					$sizes = array( 'thumbnail', 'medium', 'large', 'spine-large_size' );
-
-					foreach ( $sizes as $size ) {
-						$image = wp_get_attachment_image_src( $background_id, $size );
-
-						if ( ! empty( $image ) ) {
-							$name = ucfirst( $size ) . ' (' . $image[1] . 'x' . $image[2] . ')';
-							$background_sizes .= $size . ':' . $name . ',';
-						}
-					}
-
-					$background_sizes = rtrim( $background_sizes, ',' );
-				}
 				?>
-				<div id="issue-article-<?php echo esc_attr( $article_id ); ?>"
-					class="issue-article"
+				<div id="issue-post-<?php echo esc_attr( $post_id ); ?>"
+					class="issue-post"
+					data-classes="<?php echo esc_attr( $classes ); ?>"
 					data-header="<?php echo esc_attr( $header ); ?>"
-					data-subtitle="<?php echo esc_attr( $subtitle ); ?>"
-					data-background-id="<?php echo esc_attr( $background_id ); ?>"
-					data-background-position="<?php echo esc_attr( $background_position ); ?>"
-					data-background-image="<?php echo esc_url( $background_image ); ?>"
-					data-background-sizes="<?php echo esc_attr( $background_sizes ); ?>"
-					data-background-size="<?php echo esc_attr( $background_size ); ?>">
+					data-subheader="<?php echo esc_attr( $subheader ); ?>"
+					data-display-image="<?php echo esc_attr( $display_image ); ?>"
+					data-display-excerpt="<?php echo esc_attr( $display_excerpt ); ?>"
+					data-background-image="<?php echo esc_url( $bg_image ); ?>"
+					data-background-position="<?php echo esc_attr( $bg_position ); ?>">
 
-					<div class="ttfmake-sortable-handle ui-sortable-handle" title="Drag and drop this article into place">
+					<div class="ttfmake-sortable-handle ui-sortable-handle" title="Drag and drop this post into place">
 
 						<a href="#" class="spine-builder-column-configure">
-							<span>Configure this column</span>
+							<span>Configure this post</span>
 						</a>
 
 						<a href="#" class="wsuwp-column-toggle" title="Click to toggle">
 							<div class="handlediv<?php echo esc_attr( $toggle_class ); ?>" aria-expanded="true"></div>
 						</a>
 
-						<div class="wsuwp-builder-column-title"><?php echo get_the_title( $article_id ); ?></div>
+						<div class="wsuwp-builder-column-title"><?php echo get_the_title( $post_id ); ?></div>
 
 					</div>
 
-					<div class="wsm-article-body wsuwp-column-content<?php echo esc_attr( $article_classes ); ?>" style="<?php echo esc_attr( $article_styles ); ?>">
+					<article class="<?php echo esc_attr( $post_classes ); ?>" style="<?php echo esc_attr( $post_styles ); ?>">
 
-						<div class="home-header-head-wrapper">
-							<h2><?php echo esc_html( $display_header ); ?></h2>
-							<div class="article-section"><?php echo esc_html( $section ); ?></div>
-							<div class="home-subtitle"><?php echo esc_html( $display_subtitle ); ?></div>
+						<header>
+							<h2><?php echo esc_html( $header ); ?></h2>
+							<p class="subheader"><?php echo esc_html( $subheader ); ?></p>
+						</header>
+
+						<figure class="featured-image">
+							<img src="<?php echo esc_url( get_the_post_thumbnail_url( $post_id, 'spine-large_size' ) ); ?>" />
+						</figure>
+
+						<figure class="thumbnail-image">
+							<img src="<?php echo esc_url( MultiPostThumbnails::get_post_thumbnail_url( 'post', 'thumbnail-image', $post_id, 'spine-large_size' ) ); ?>" />
+						</figure>
+
+						<div class="excerpt">
+							<?php if ( has_excerpt() ) { echo wp_kses_post( wpautop( get_the_excerpt( $post_id ) ) ); } ?>
 						</div>
 
-					</div>
+					</article>
 				</div>
 				<?php
 			endif;
