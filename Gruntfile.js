@@ -2,6 +2,26 @@ module.exports = function( grunt ) {
 	grunt.initConfig( {
 		pkg: grunt.file.readJSON( "package.json" ),
 
+		stylelint: {
+			src: [ "css/src/*.css" ]
+		},
+
+		postcss: {
+			options: {
+				processors: [
+					require( "autoprefixer" )( {
+						browsers: [ "> 1%", "ie 8-11", "Firefox ESR" ]
+					} )
+				]
+			},
+			dist: {
+				cwd: "css/src/",
+				src: "*.css",
+				dest: "css/",
+				expand: true
+			}
+		},
+
 		phpcs: {
 			plugin: {
 				src: [ "./*.php", "./includes/*.php", "./builder-templates/*/*.php" ]
@@ -54,14 +74,29 @@ module.exports = function( grunt ) {
 					jquery: true   // Define globals exposed by jQuery.
 				}
 			}
+		},
+
+		uglify: {
+			dist: {
+				files: [ {
+					expand: true,
+					cwd: "js/src/",
+					src: "*.js",
+					dest: "js",
+					ext: ".min.js"
+				} ]
+			}
 		}
 
 	} );
 
-	grunt.loadNpmTasks( "grunt-jscs" );
 	grunt.loadNpmTasks( "grunt-contrib-jshint" );
+	grunt.loadNpmTasks( "grunt-contrib-uglify" );
+	grunt.loadNpmTasks( "grunt-jscs" );
 	grunt.loadNpmTasks( "grunt-phpcs" );
+	grunt.loadNpmTasks( "grunt-postcss" );
+	grunt.loadNpmTasks( "grunt-stylelint" );
 
 	// Default task(s).
-	grunt.registerTask( "default", [ "phpcs", "jscs", "jshint" ] );
+	grunt.registerTask( "default", [ "stylelint", "postcss", "phpcs", "jscs", "jshint", "uglify" ] );
 };
