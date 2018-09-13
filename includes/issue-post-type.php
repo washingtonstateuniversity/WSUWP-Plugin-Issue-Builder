@@ -13,6 +13,7 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\admin_enqueue_scripts' )
 add_action( 'add_meta_boxes_' . slug(), __NAMESPACE__ . '\\add_post_stage_meta_box' );
 add_action( 'wp_ajax_set_issue_posts', __NAMESPACE__ . '\\ajax_callback' );
 add_action( 'save_post_issue', __NAMESPACE__ . '\\save_issue', 10, 2 );
+add_filter( 'template_include', __NAMESPACE__ . '\\default_issue_template', 99 );
 
 /**
  * Returns the issue post type slug.
@@ -621,6 +622,8 @@ function ajax_callback() {
 /**
  * Capture the meta values for an issue.
  *
+ * @since 0.0.1
+ *
  * @param int     $post_id ID of the current post being saved.
  * @param WP_Post $post    Object of the current post being saved.
  */
@@ -661,4 +664,24 @@ function save_issue( $post_id, $post ) {
 	} else {
 		delete_post_meta( $post_id, '_wsuwp_issue_post_end_date' );
 	}
+}
+
+/**
+ * Serves the issue content using the builder template.
+ *
+ * @since 0.0.1
+ *
+ * @param string $template The path of the template to include.
+ *
+ * @return string The path of the template to include.
+ */
+function default_issue_template( $template ) {
+	if ( ! is_singular( 'issue' ) ) {
+		return $template;
+	}
+
+	$new_template = locate_template( array( 'template-builder.php' ) );
+	$template = ( ! empty( $new_template ) ) ? $new_template : $template;
+
+	return $template;
 }
