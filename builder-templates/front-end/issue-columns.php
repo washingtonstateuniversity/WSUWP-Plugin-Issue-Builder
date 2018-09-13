@@ -90,16 +90,12 @@ $data_columns = spine_get_column_data( $ttfmake_section_data, $section_type_colu
 			</header>
 
 			<?php if ( $display_image ) { ?>
-			<figure class="<?php echo esc_attr( $display_image['class'] ); ?>">
-				<a href="" title="<?php echo esc_attr( $header ); ?>">
-					<img src="<?php echo esc_url( $display_image['src'] ); ?>" />
-				</a>
-			</figure>
+			<figure class="<?php echo esc_attr( $display_image['class'] ); ?>"><a href="" title="<?php echo esc_attr( $header ); ?>"><img src="<?php echo esc_url( $display_image['src'] ); ?>" /></a></figure>
 			<?php } ?>
 
-			<?php if ( ! empty( $column['display-excerpt'] ) && has_excerpt() ) { ?>
+			<?php if ( ! empty( $column['display-excerpt'] ) && has_excerpt( $column['post-id'] ) ) { ?>
 			<div class="excerpt">
-				<?php echo wp_kses_post( wpautop( get_the_excerpt( $post_id ) ) ); ?>
+				<?php echo wp_kses_post( wpautop( get_the_excerpt( $column['post-id'] ) ) ); ?>
 			</div>
 			<?php } ?>
 

@@ -149,8 +149,8 @@ function post_configuration_output( $column_name, $section_data, $column = false
 	$column_classes = ( ! empty( $section_data['data']['columns'][ $column ]['classes'] ) ) ? $section_data['data']['columns'][ $column ]['classes'] : '';
 	$header = ( ! empty( $section_data['data']['columns'][ $column ]['header'] ) ) ? $section_data['data']['columns'][ $column ]['header'] : '';
 	$subheader = ( ! empty( $section_data['data']['columns'][ $column ]['subheader'] ) ) ? $section_data['data']['columns'][ $column ]['subheader'] : '';
-	$display_image = ( ! empty( $section_data['data']['columns'][ $column ]['display_image'] ) ) ? $section_data['data']['columns'][ $column ]['display_image'] : '';
-	$display_excerpt = ( ! empty( $section_data['data']['columns'][ $column ]['display_excerpt'] ) ) ? $section_data['data']['columns'][ $column ]['display_excerpt'] : '';
+	$display_image = ( ! empty( $section_data['data']['columns'][ $column ]['display-image'] ) ) ? $section_data['data']['columns'][ $column ]['display-image'] : '';
+	$display_excerpt = ( ! empty( $section_data['data']['columns'][ $column ]['display-excerpt'] ) ) ? $section_data['data']['columns'][ $column ]['display-excerpt'] : '';
 	$bg_image = ( ! empty( $section_data['data']['columns'][ $column ]['background-image'] ) ) ? $section_data['data']['columns'][ $column ]['background-image'] : '';
 	$bg_position = ( ! empty( $section_data['data']['columns'][ $column ]['background-position'] ) ) ? $section_data['data']['columns'][ $column ]['background-position'] : '';
 	?>
@@ -186,23 +186,24 @@ function post_configuration_output( $column_name, $section_data, $column = false
 	</div>
 
 	<div class="wsuwp-builder-meta">
-		<label for="<?php echo esc_attr( $column_name ); ?>[display_image]">Post Image</label><br />
-		<select id="<?php echo esc_attr( $column_name ); ?>[display_image]"
-				name="<?php echo esc_attr( $column_name ); ?>[display_image]"
+		<label for="<?php echo esc_attr( $column_name ); ?>[display-image]">Post Image</label>
+		<select id="<?php echo esc_attr( $column_name ); ?>[display-image]"
+				name="<?php echo esc_attr( $column_name ); ?>[display-image]"
 				class="spine-builder-column-display-image wsuwp-issue-post-meta">
 			<option value="">Select</option>
 			<option value="featured-image" <?php selected( $display_image, 'featured-image' ); ?>>Featured image</option>
 			<option value="thumbnail-image" <?php selected( $display_image, 'thumbnail-image' ); ?>>Thumbnail image</option>
 		</select>
-		<p class="description">Display an image assigned to this post as an <code>&lt;img&gt;</code> element within the <code>article</code>.</p>
+		<p class="description">Select an image assigned to this post to display.</p>
 	</div>
 
 	<div class="wsuwp-builder-meta">
-		<label for="<?php echo esc_attr( $column_name ); ?>[display_excerpt]">Display Post Excerpt</label><br />
+		<label for="<?php echo esc_attr( $column_name ); ?>[display-excerpt]">Display Post Excerpt</label>
 		<input type="checkbox"
-			   id="<?php echo esc_attr( $column_name ); ?>[display_excerpt]"
-			   name="<?php echo esc_attr( $column_name ); ?>[display_excerpt]"
+			   id="<?php echo esc_attr( $column_name ); ?>[display-excerpt]"
+			   name="<?php echo esc_attr( $column_name ); ?>[display-excerpt]"
 			   value="yes"
+			   <?php checked( 'yes', $display_excerpt ); ?>
 			   class="spine-builder-column-display-excerpt wsuwp-issue-post-meta" />
 		</select>
 		<p class="description">Display this post's manual excerpt.</p>
@@ -299,6 +300,14 @@ function save_columns( $data ) {
 
 			if ( isset( $item['subheader'] ) ) {
 				$clean_data['columns'][ $id ]['subheader'] = sanitize_text_field( $item['subheader'] );
+			}
+
+			if ( isset( $item['display-image'] ) ) {
+				$clean_data['columns'][ $id ]['display-image'] = sanitize_text_field( $item['display-image'] );
+			}
+
+			if ( isset( $item['display-excerpt'] ) ) {
+				$clean_data['columns'][ $id ]['display-excerpt'] = sanitize_text_field( $item['display-excerpt'] );
 			}
 
 			if ( isset( $item['background-image'] ) ) {

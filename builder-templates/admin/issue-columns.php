@@ -30,10 +30,12 @@ $j = 1;
 
 		$column_style = ( 'invisible' === $visible ) ? ' display: none;' : '';
 		$toggle_class = ( 'invisible' === $visible ) ? ' wsuwp-toggle-closed' : '';
+		//var_dump( $column_style );
+		//var_dump( $toggle_class );
 		?>
 		<div class="wsuwp-spine-builder-column wsuwp-spine-builder-column-position-<?php echo esc_attr( $j ); ?>" data-id="<?php echo esc_attr( $i ); ?>">
-			<input type="hidden" class="wsuwp-column-visible wsuwp-issue-post-meta" name="<?php echo esc_attr( $column_name ); ?>[toggle]" value="<?php echo esc_attr( $visible ); ?>" aria-hidden="true" />
-			<input type="hidden" class="wsuwp-column-post-id wsuwp-issue-post-meta" name="<?php echo esc_attr( $column_name ); ?>[post-id]" value="<?php echo esc_attr( $post_id ); ?>" aria-hidden="true" />
+			<input type="hidden" class="wsuwp-column-visible wsuwp-issue-post-meta" name="<?php echo esc_attr( $column_name ); ?>[toggle]" value="<?php echo esc_attr( $visible ); ?>"/>
+			<input type="hidden" class="wsuwp-column-post-id wsuwp-issue-post-meta" name="<?php echo esc_attr( $column_name ); ?>[post-id]" value="<?php echo esc_attr( $post_id ); ?>" />
 			<div class="spine-builder-column-overlay">
 				<div class="spine-builder-column-overlay-wrapper">
 					<div class="spine-builder-overlay-header">
@@ -107,7 +109,7 @@ $j = 1;
 						</figure>
 
 						<div class="excerpt">
-							<?php if ( has_excerpt() ) { echo wp_kses_post( wpautop( get_the_excerpt( $post_id ) ) ); } ?>
+							<?php if ( has_excerpt( $post_id ) ) { echo wp_kses_post( wpautop( get_the_excerpt( $post_id ) ) ); } ?>
 						</div>
 
 					</article>

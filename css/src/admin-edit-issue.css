@@ -81,17 +81,23 @@
 	padding: 8px 12px;
 }
 
-.wsuwp-issue-post-body figure {
+.wsuwp-issue-post-body figure,
+.wsuwp-issue-post-body .excerpt {
 	display: none;
 }
 
 .issue-post[data-display-image="featured-image"] .featured-image,
-.issue-post[data-display-image="thumbnail-image"] .thumbnail-image {
+.issue-post[data-display-image="thumbnail-image"] .thumbnail-image,
+.issue-post[data-display-excerpt="yes"] .excerpt {
 	display: block;
 }
 
 .wsuwp-issue-post-body img {
 	width: 100%;
+}
+
+#ttfmake-stage .wsuwp-issue-stage .spine-builder-column-display-excerpt {
+	margin-top: 0;
 }
 
 .spine-builder-column-set-background-image img {
