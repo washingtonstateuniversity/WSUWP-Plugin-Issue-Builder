@@ -15,7 +15,6 @@ $section_name = ttfmake_get_section_name( $ttfmake_section_data, $ttfmake_is_js_
 $section_order = ( ! empty( $ttfmake_section_data['data']['columns-order'] ) ) ? $ttfmake_section_data['data']['columns-order'] : range( 1, $wsuwp_range );
 $section_state = ( isset( $ttfmake_section_data['data']['state'] ) ) ? $ttfmake_section_data['data']['state'] : 'open';
 $j = 1;
-var_dump( $j );
 ?>
 <div class="wsuwp-issue-stage">
 	<?php
