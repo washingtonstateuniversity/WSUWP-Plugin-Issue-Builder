@@ -27,7 +27,7 @@ $section_type_columns = array(
 $data_columns = spine_get_column_data( $ttfmake_section_data, $section_type_columns[ $section_type ] );
 ?>
 
-<section id="<?php echo esc_attr( $section_id ); ?>" class="row <?php echo esc_attr( $section_classes ); ?>">
+<section id="<?php echo esc_attr( $section_id ); ?>" class="<?php echo esc_attr( $section_classes ); ?>">
 
 	<?php
 	if ( empty( $data_columns ) ) {
@@ -82,15 +82,15 @@ $data_columns = spine_get_column_data( $ttfmake_section_data, $section_type_colu
 		}
 		?>
 
-		<article class="column <?php echo esc_attr( $column_classes ); ?>"<?php if ( ! empty( $column_styles ) ) { echo ' style="' . esc_attr( $column_styles ) . '"'; } ?>>
+		<article class="<?php echo esc_attr( $column_classes ); ?>"<?php if ( ! empty( $column_styles ) ) { echo ' style="' . esc_attr( $column_styles ) . '"'; } ?>>
 
 			<header>
-				<h2><a href="<?php get_permalink( get_permalink( $column['post-id'] ) ); ?>"><?php echo esc_html( $header ); ?></a></h2>
+				<h2><a href="<?php echo esc_url( get_permalink( $column['post-id'] ) ); ?>"><?php echo esc_html( $header ); ?></a></h2>
 				<?php if ( $subheader ) { ?><p class="subheader"><?php echo esc_html( $subheader ); ?></p><?php } ?>
 			</header>
 
 			<?php if ( $display_image ) { ?>
-			<figure class="<?php echo esc_attr( $display_image['class'] ); ?>"><a href="" title="<?php echo esc_attr( $header ); ?>"><img src="<?php echo esc_url( $display_image['src'] ); ?>" /></a></figure>
+			<figure class="<?php echo esc_attr( $display_image['class'] ); ?>"><a href="<?php echo esc_url( get_permalink( $column['post-id'] ) ); ?>" title="<?php echo esc_attr( $header ); ?>"><img src="<?php echo esc_url( $display_image['src'] ); ?>" /></a></figure>
 			<?php } ?>
 
 			<?php if ( ! empty( $column['display-excerpt'] ) && has_excerpt( $column['post-id'] ) ) { ?>
