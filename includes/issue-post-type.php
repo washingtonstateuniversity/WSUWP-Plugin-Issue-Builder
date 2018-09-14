@@ -417,6 +417,7 @@ function admin_enqueue_scripts( $hook ) {
  * Adds the post staging meta box used by the issue content type.
  *
  * @since 0.0.1
+ * @since 0.0.2 Added the "spine-main-header" metabox.
  */
 function add_post_stage_meta_box() {
 	add_meta_box(
@@ -425,6 +426,13 @@ function add_post_stage_meta_box() {
 		__NAMESPACE__ . '\\display_issue_posts_meta_box',
 		slug(),
 		'side'
+	);
+
+	add_meta_box(
+		'spine-main-header',
+		'Spine Main Header',
+		array( new \Spine_Main_Header(), 'display_main_header_meta_box' ),
+		slug()
 	);
 }
 
