@@ -76,6 +76,7 @@ function register_builder_support() {
  * Removes sections defined for the default implemenation of the page builder.
  *
  * @since 0.0.1
+ * @since 0.0.2 Re-enabled the Header section.
  */
 function remove_builder_sections( $current_screen ) {
 	if ( slug() !== $current_screen->id ) {
@@ -88,7 +89,6 @@ function remove_builder_sections( $current_screen ) {
 	ttfmake_remove_section( 'wsuwpsidebarright' );
 	ttfmake_remove_section( 'wsuwpthirds' );
 	ttfmake_remove_section( 'wsuwpquarters' );
-	ttfmake_remove_section( 'wsuwpheader' );
 	ttfmake_remove_section( 'banner' );
 }
 
