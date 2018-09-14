@@ -12,7 +12,7 @@ add_action( 'after_setup_theme', __NAMESPACE__ . '\\bootstrap' );
  * @return string The plugin version number.
  */
 function version() {
-	return '0.0.1';
+	return '0.0.2';
 }
 
 /**
