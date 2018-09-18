@@ -69,7 +69,10 @@
 
 .wsuwp-builder-column-title {
 	margin: 0 12px;
+	overflow: hidden;
 	text-align: left;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	width: auto;
 }
 
