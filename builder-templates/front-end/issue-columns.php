@@ -69,14 +69,21 @@ $data_columns = spine_get_column_data( $ttfmake_section_data, $section_type_colu
 
 		if ( ! empty( $column['display-image'] ) ) {
 			if ( 'featured-image' === $column['display-image'] ) {
+
+				$img_id = get_post_thumbnail_id( $column['post-id'] );
+
+				$img_alt = ( ! empty( $img_id ) ) ? get_post_meta( $img_id, '_wp_attachment_image_alt', true ) : '';
+
 				$display_image = array(
 					'class' => 'issue-post-featured-image',
 					'src' => get_the_post_thumbnail_url( $column['post-id'], 'spine-large_size' ),
+					'alt' => $img_alt,
 				);
 			} elseif ( 'thumbnail-image' === $column['display-image'] && class_exists( 'MultiPostThumbnails' ) ) {
 				$display_image = array(
 					'class' => 'issue-post-thumbnail-image',
 					'src' => MultiPostThumbnails::get_post_thumbnail_url( 'post', 'thumbnail-image', $column['post-id'], 'spine-large_size' ),
+					'alt' => '',
 				);
 			}
 		}
@@ -90,7 +97,7 @@ $data_columns = spine_get_column_data( $ttfmake_section_data, $section_type_colu
 			</header>
 
 			<?php if ( $display_image ) { ?>
-			<figure class="<?php echo esc_attr( $display_image['class'] ); ?>"><a href="<?php echo esc_url( get_permalink( $column['post-id'] ) ); ?>" title="<?php echo esc_attr( $header ); ?>"><img src="<?php echo esc_url( $display_image['src'] ); ?>" /></a></figure>
+			<figure class="<?php echo esc_attr( $display_image['class'] ); ?>" style="background-image:url(<?php echo esc_url( $display_image['src'] ); ?> )"><img src="<?php echo esc_url( $display_image['src'] ); ?>" alt="<?php echo esc_attr( $display_image['alt'] ); ?>"></figure>
 			<?php } ?>
 
 			<?php if ( ! empty( $column['display-excerpt'] ) && has_excerpt( $column['post-id'] ) ) { ?>
@@ -99,6 +106,7 @@ $data_columns = spine_get_column_data( $ttfmake_section_data, $section_type_colu
 			</div>
 			<?php } ?>
 
+			<a class="article-link" href="<?php echo esc_url( get_permalink( $column['post-id'] ) ); ?>" title="<?php echo esc_attr( $header ); ?>"></a>
 		</article>
 
 		<?php
