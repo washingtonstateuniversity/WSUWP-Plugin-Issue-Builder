@@ -105,7 +105,6 @@ $data_columns = spine_get_column_data( $ttfmake_section_data, $section_type_colu
 				<?php echo wp_kses_post( wpautop( get_the_excerpt( $column['post-id'] ) ) ); ?>
 			</div>
 			<?php } ?>
-
 			<a class="article-link" href="<?php echo esc_url( get_permalink( $column['post-id'] ) ); ?>"><?php echo esc_attr( $header ); ?></a>
 		</article>
 
