@@ -55,6 +55,8 @@ function register_issue_post_type() {
 			'title',
 			'editor',
 			'revisions',
+			'thumbnail',
+			'excerpt',
 		),
 		'taxonomies' => array(),
 		'has_archive' => true,
