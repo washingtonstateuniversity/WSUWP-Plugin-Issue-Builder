@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: WSUWP Issue Builder
-Version: 0.0.4
+Version: 0.0.5
 Description: A WordPress plugin for displaying specific collections of posts.
 Author: washingtonstateuniversity, philcable
 Author URI: https://web.wsu.edu/
