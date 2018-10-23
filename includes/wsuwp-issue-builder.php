@@ -22,4 +22,5 @@ function version() {
  */
 function bootstrap() {
 	require_once __DIR__ . '/issue-post-type.php';
+	require_once __DIR__ . '/issue-promo-shortcode.php';
 }

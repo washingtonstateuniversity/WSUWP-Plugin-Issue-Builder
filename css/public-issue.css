@@ -1,0 +1,44 @@
+/*.issue-article #post-featured-banner {
+	position: relative;
+}
+
+.issue-article #post-featured-banner figure {
+	height: 450px;
+}
+
+.issue-article #post-featured-banner.has-image h1 {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	color: #fff;
+	background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 58%, rgba(0,0,0,0.65) 100%);
+	background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 58%,rgba(0,0,0,0.65) 100%);
+	background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 58%,rgba(0,0,0,0.65) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#a6000000',GradientType=0 );
+	padding: 22px 2rem;
+}*/
+
+
+.issue-article .featured-image {
+	position: relative;
+	padding-bottom: 56%;
+}
+
+.issue-article .featured-image img {
+	display: none;
+}
+
+.issue-article a.article-link {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+    display: block;
+    font-size: 0;
+}
+
+.issue-article a.article-link:hover {
+	background-color: rgba(0,0,0,0.1);
+}

@@ -10,6 +10,7 @@ add_filter( 'get_post_metadata', __NAMESPACE__ . '\\force_page_builder_meta', 10
 add_filter( 'spine_builder_force_builder', __NAMESPACE__ . '\\force_builder' );
 add_filter( 'make_will_be_builder_page', __NAMESPACE__ . '\\force_builder' );
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\admin_enqueue_scripts' );
+add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\wp_enqueue_scripts' );
 add_action( 'add_meta_boxes_' . slug(), __NAMESPACE__ . '\\add_post_stage_meta_box' );
 add_action( 'wp_ajax_set_issue_posts', __NAMESPACE__ . '\\ajax_callback' );
 add_action( 'save_post_issue', __NAMESPACE__ . '\\save_issue', 10, 2 );
@@ -413,6 +414,16 @@ function admin_enqueue_scripts( $hook ) {
 
 	wp_enqueue_style( 'wsuwp-issue-admin', plugins_url( '/css/admin-edit-issue.css', dirname( __FILE__ ) ), array( 'ttfmake-builder' ), \WSUWP\Issue_Builder\version() );
 	wp_enqueue_script( 'wsuwp-issue-admin', plugins_url( '/js/admin-edit-issue.min.js', dirname( __FILE__ ) ), array( 'jquery-ui-draggable', 'jquery-ui-sortable' ), \WSUWP\Issue_Builder\version(), true );
+}
+
+
+/**
+ * Enqueues the scripts used for public Issues.
+ *
+ * @since 0.0.6
+ */
+function wp_enqueue_scripts() {
+	wp_enqueue_style( 'wsuwp-issue-public', plugins_url( '/css/public-issue.css', dirname( __FILE__ ) ), array(), \WSUWP\Issue_Builder\version() );
 }
 
 /**
