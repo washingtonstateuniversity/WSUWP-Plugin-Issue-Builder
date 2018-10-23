@@ -60,7 +60,7 @@ class Issue_Promo_Shortcode {
 	 */
 	public function render_shortcode( $atts, $content, $tag ) {
 
-		$atts = shortcode_atts( $this->default_atts, $atts, $tag );
+		$atts = shortcode_atts( $this->default_atts, $atts );
 
 		$id              = ( ! empty( $atts['id'] ) ) ? $atts['id'] : '';
 		$image_array     = $this->get_post_image_array( $id, $atts );
