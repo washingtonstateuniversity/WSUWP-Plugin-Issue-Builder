@@ -65,7 +65,7 @@ class Issue_Promo_Shortcode {
 		$id              = ( ! empty( $atts['id'] ) ) ? $atts['id'] : '';
 		$image_array     = $this->get_post_image_array( $id, $atts );
 		$column_classes  = ( ! empty( $atts['classes'] ) ) ? $atts['classes'] : '';
-		$column_styles   = ( ! empty( $atts['background-position'] ) ) ? 'background-postion:' . $atts['background-position'] .';' : '';
+		$column_styles   = ( ! empty( $atts['background-position'] ) ) ? 'background-postion:' . $atts['background-position'] . ';' : '';
 		$header          = ( ! empty( $atts['header'] ) ) ? $atts['header'] : '';
 		$subheader       = ( ! empty( $atts['subheader'] ) ) ? $atts['subheader'] : '';
 		$display_image   = ( ! empty( $atts['display-image'] ) ) ? $atts['display-image'] : '';
