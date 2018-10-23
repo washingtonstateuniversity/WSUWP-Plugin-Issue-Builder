@@ -49,7 +49,7 @@ $data_columns = spine_get_column_data( $ttfmake_section_data, $section_type_colu
 		 * Updated code to use with the shortcode
 		 */
 
-		$column_classes = array('column');
+		$column_classes = array( 'column' );
 		$column_classes[] = $column_count[ $count ];
 		$column_classes[] = ( ! empty( $column['classes'] ) ) ? str_replace( ' ', ',', $column['classes'] ) : '';
 
@@ -72,10 +72,9 @@ $data_columns = spine_get_column_data( $ttfmake_section_data, $section_type_colu
 				$shortcode_atts[] = $key . '="' . esc_attr( $value ) . '"';
 
 			} // End if
-
 		} // End foreach
 
-		?>[issue_article <?php echo implode( ' ', $shortcode_atts ); ?>  ][/issue_article]<?php
+		?>[issue_article <?php echo esc_html( implode( ' ', $shortcode_atts ) ); ?>  ][/issue_article]<?php
 		$count++;
 	}
 	?>
