@@ -74,7 +74,7 @@ $data_columns = spine_get_column_data( $ttfmake_section_data, $section_type_colu
 			} // End if
 		} // End foreach
 
-		?>[issue_article <?php echo wp_kses_post( implode(' ', $issue_array ) ); ?>][/issue_article]<?php
+		?>[issue_article <?php echo wp_kses_post( implode( ' ', $issue_array ) ); ?>][/issue_article]<?php
 		$count++;
 	}
 	?>
