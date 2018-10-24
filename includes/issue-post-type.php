@@ -92,7 +92,7 @@ function remove_builder_sections( $current_screen ) {
 	ttfmake_remove_section( 'wsuwpsidebarright' );
 	ttfmake_remove_section( 'wsuwpthirds' );
 	ttfmake_remove_section( 'wsuwpquarters' );
-	ttfmake_remove_section( 'banner' );
+	//ttfmake_remove_section( 'banner' );
 }
 
 /**
