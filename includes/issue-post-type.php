@@ -203,12 +203,11 @@ function post_configuration_output( $column_name, $section_data, $column = false
 
 	<div class="wsuwp-builder-meta">
 		<label for="<?php echo esc_attr( $column_name ); ?>[display-excerpt]">Display Post Excerpt</label>
-		<input type="checkbox"
-			   id="<?php echo esc_attr( $column_name ); ?>[display-excerpt]"
-			   name="<?php echo esc_attr( $column_name ); ?>[display-excerpt]"
-			   value="yes"
-			   <?php checked( 'yes', $display_excerpt ); ?>
-			   class="spine-builder-column-display-excerpt wsuwp-issue-post-meta" />
+		<select id="<?php echo esc_attr( $column_name ); ?>[display-excerpt]"
+				name="<?php echo esc_attr( $column_name ); ?>[display-excerpt]"
+				class="spine-builder-column-display-excerpt wsuwp-issue-post-meta">
+			<option value="yes" <?php selected( $display_excerpt, 'yes' ); ?>>Yes</option>
+			<option value="no" <?php selected( $display_excerpt, 'no' ); ?>>No</option>
 		</select>
 		<p class="description">Display this post's manual excerpt.</p>
 	</div>

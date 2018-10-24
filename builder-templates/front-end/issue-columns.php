@@ -63,18 +63,18 @@ $data_columns = spine_get_column_data( $ttfmake_section_data, $section_type_colu
 			'display-excerpt'      => ( isset( $column['display-excerpt'] ) ) ? $column['display-excerpt'] : '',
 		);
 
-		$shortcode_atts = array();
+		$issue_array = array();
 
 		foreach ( $shortcode_atts_array as $key => $value ) {
 
 			if ( '' !== $value ) {
 
-				$shortcode_atts[] = $key . '="' . esc_attr( $value ) . '"';
+				$issue_array[] = esc_attr( $key ) . '=\"' . esc_attr( $value ) . '\" ';
 
 			} // End if
 		} // End foreach
 
-		?>[issue_article <?php echo esc_html( implode( ' ', $shortcode_atts ) ); ?>  ][/issue_article]<?php
+		?>[issue_article <?php echo wp_kses_post( implode( ' ', $issue_array ) ); ?>][/issue_article]<?php
 		$count++;
 	}
 	?>
