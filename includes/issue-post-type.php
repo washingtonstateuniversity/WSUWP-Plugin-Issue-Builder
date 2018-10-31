@@ -61,6 +61,8 @@ function register_issue_post_type() {
 		),
 		'taxonomies' => array(),
 		'has_archive' => true,
+		'exclude_from_search' => true,
+		'show_in_rest' => true,
 	);
 
 	register_post_type( slug(), $args );
